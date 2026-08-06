@@ -2805,3 +2805,12 @@ Entries:
   id: 9702
   time: '2026-08-04T03:26:05.0000000+00:00'
   url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1364
+- author: ThatOneMoon
+  changes:
+    - type: Tweak
+      message: >-
+        Treasure Chests can hold more kinds of treasure items and construction
+        bags/boxes can now also store flatpacks and machine boards
+  id: 9703
+  time: '2026-08-06T14:44:03.0000000+00:00'
+  url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1355

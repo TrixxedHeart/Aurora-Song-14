@@ -171,6 +171,7 @@
       behaviors:
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
+  - type: NFTreasure # Aurora Song, so it can be stored in treasure boxes
 
 - type: entity
   parent: MaterialEidolite

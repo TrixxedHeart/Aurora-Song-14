@@ -49,7 +49,7 @@
   - type: Storage
     grid:
     - 0,0,19,9 # DeltaV: Expanded to ore bag of holding storage
-    maxItemSize: Normal
+    maxItemSize: Large # Aurora Song, expanded from Normal to Large
     storageOpenSound: /Audio/Effects/closetopen.ogg
     storageCloseSound: /Audio/Effects/closetclose.ogg
   - type: UserInterface
@@ -142,6 +142,8 @@
       - CableCoil
       components:
       - ConstructionMaterials
+      - MachineBoard # Aurora Song
+      - Flatpack # Aurora Song
     blacklist:
       tags:
       - PrizeTicket
