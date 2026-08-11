@@ -1,0 +1,5 @@
+# Broom sweep
+- type: soundCollection
+  id: BroomSweep
+  files:
+  - /Audio/_AS/Effects/Broom/broom_sweep.ogg

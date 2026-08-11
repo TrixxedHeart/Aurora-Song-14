@@ -24,11 +24,19 @@
   - type: SoundWhileAlive
   - type: SpamEmitSound
     minInterval: 30
-    maxInterval: 60
+    maxInterval: 120 # Aurora's Song: Longer max interval for less soundspam
     sound:
-      collection: MaleSigh
+      collection: BroomSweep # Aurora's Song: Brooms no longer sigh
       params:
         variation: 0.2
+   # Aurora's Song: Make enchanted brooms brooms and not just reskinned cleanbots
+  - type: NameIdentifier
+    group: GenericNumber
+  - type: InteractionPopup
+    interactSuccessString: petting-success-enchantedbroom
+    interactFailureString: petting-failure-enchantedbroom
+    interactSuccessSound:
+      path: /Audio/_AS/Effects/Broom/broom_sweep.ogg
 
 #region spawner
 - type: entity
