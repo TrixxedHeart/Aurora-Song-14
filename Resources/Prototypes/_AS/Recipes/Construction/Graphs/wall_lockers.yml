@@ -1,0 +1,38 @@
+# Crafting of _NF gridinv wall lockers
+- type: constructionGraph
+  id: LockerWallColorGeneric
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: LockerWallColorGeneric
+      completed:
+      - !type:SnapToGrid
+      steps:
+      - material: Steel
+        amount: 5
+      - material: Cable
+        amount: 2
+        doAfter: 5
+
+  - node: LockerWallColorGeneric
+    entity: LockerWallColorGeneric
+    edges:
+    - to: start
+      conditions:
+      - !type:StorageWelded
+        welded: false
+      - !type:Locked
+        locked: false
+      steps:
+      - tool: Screwing
+        doAfter: 5
+      completed:
+      - !type:SpawnPrototype
+        prototype: SheetSteel1
+        amount: 5
+      - !type:SpawnPrototype
+        prototype: CableApcStack1
+        amount: 2
+      - !type:EmptyAllContainers
+      - !type:DeleteEntity

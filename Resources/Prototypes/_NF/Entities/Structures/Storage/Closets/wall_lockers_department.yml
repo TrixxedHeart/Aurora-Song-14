@@ -371,6 +371,9 @@
   - type: StorageFillVisualizer
     maxFillLevels: 9
     fillBaseName: fillGeneric
+  - type: Construction # Aurora's Song: Allow crafting of grivinv wall lockers
+    graph: LockerWallColorGeneric
+    node: LockerWallColorGeneric
 
 - type: entity
   id: LockerWallColorGenericBlue

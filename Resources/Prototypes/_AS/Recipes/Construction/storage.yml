@@ -1,0 +1,13 @@
+# Allow crafting _NF gridinv wall lockers
+- type: construction
+  id: LockerWallColorGeneric
+  graph: LockerWallColorGeneric
+  startNode: start
+  targetNode: LockerWallColorGeneric
+  category: construction-category-storage
+  objectType: Structure
+  placementMode: SnapgridCenter
+  canRotate: true
+  canBuildInImpassable: true
+  conditions:
+  - !type:WallmountCondition
