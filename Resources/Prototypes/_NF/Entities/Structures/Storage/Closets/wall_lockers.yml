@@ -64,6 +64,8 @@
         enum.StorageFillLayers.Fill:
           True: { visible: true }
           False: { visible: false }
+  - type: Paintable # Aurora's Song: Allow wall lockers to be spray painted
+    group: NFGridWallLocker
 # endregion
 
 #region Fuel / mats storage
