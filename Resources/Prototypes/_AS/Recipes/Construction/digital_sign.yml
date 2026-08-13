@@ -1,7 +1,5 @@
 - type: construction
   id: ASDigitalSign
-  name: wall-mounted digital sign
-  description: A wall-mounted programmable pixel display. Its maintenance panel can be opened to access the image display.
   graph: ASDigitalSign
   startNode: start
   targetNode: sign
@@ -15,8 +13,6 @@
 
 - type: construction
   id: ASDigitalSignFloor
-  name: floor digital sign
-  description: A freestanding programmable pixel display. Its maintenance panel can be opened to access the image display.
   graph: ASDigitalSignFloor
   startNode: start
   targetNode: sign
