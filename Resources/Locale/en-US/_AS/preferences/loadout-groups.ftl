@@ -45,3 +45,6 @@ loadout-group-site-worker-face = face
 loadout-group-site-worker-belt = belt
 loadout-group-site-worker-gloves = gloves
 loadout-group-site-worker-pda = PDA
+
+# region Pirate
+loadout-group-pirate-encryption-key = encryption keys

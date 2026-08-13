@@ -40,6 +40,19 @@
   fallbacks:
   - NFPirateEarsClothingHeadsetFreelance
 
+# Aurora's Song Start -
+- type: loadoutGroup
+  id: PirateEncryptionKey
+  name: loadout-group-pirate-encryption-key
+  minLimit: 0
+  maxLimit: 7 # Aurora's Song - Increased to 7 to match total possible keys
+  loadouts: []
+  subgroups:
+  - ContractorEncryptionKey
+  fallbacks:
+  - ContractorEncryptionKeyTraffic
+# Aurora's Song - End
+
 - type: loadoutGroup
   id: NFPirateShoes
   name: loadout-group-contractor-shoes

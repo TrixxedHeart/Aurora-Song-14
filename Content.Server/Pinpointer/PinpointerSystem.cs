@@ -100,6 +100,10 @@ public sealed partial class PinpointerSystem : SharedPinpointerSystem
         var query = EntityQueryEnumerator<PinpointerComponent>();
         while (query.MoveNext(out var uid, out var pinpointer))
         {
+            // aurora's song
+            if (!pinpointer.HasTarget || pinpointer.Target == null || !Exists(pinpointer.Target.Value))
+                continue;
+
             UpdateDirectionToTarget((uid, pinpointer));
             UpdateTargetCoordinates((uid, pinpointer)); // Aurora's Song
         }
@@ -135,11 +139,12 @@ public sealed partial class PinpointerSystem : SharedPinpointerSystem
     // Aurora's Song Start
     private void UpdateTargetCoordinates(Entity<PinpointerComponent?> ent)
     {
-        if (!Resolve(ent, ref ent.Comp))
+        if (!Resolve(ent, ref ent.Comp, false))
             return;
 
         if (ent.Comp.Target != null)
         {
+            // this transform is safe because exists is already checked in the caller
             var xform = Transform(ent.Comp.Target.Value);
             var coords = _transform.GetWorldPosition(xform);
             SetTargetCoordinates(ent, coords);
