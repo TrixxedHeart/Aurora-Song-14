@@ -2,9 +2,8 @@
                       xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
                       xmlns:admin="clr-namespace:Content.Client.Administration.UI.CustomControls"
                       xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
-                     xmlns:canvas="clr-namespace:Content.Client._AS.CanvasDesign.UI"
-                      Title="{Loc 'canvas-design-window-title'}"
-                      MinSize="710 520">
+                      xmlns:canvas="clr-namespace:Content.Client._AS.CanvasDesign.UI"
+                      Title="{Loc 'canvas-design-window-title'}">
   <BoxContainer Orientation="Vertical" Margin="8">
     <BoxContainer Name="MetadataSection" Orientation="Vertical">
       <BoxContainer Orientation="Horizontal" Margin="0 0 0 2">
