@@ -2990,3 +2990,26 @@ Entries:
   id: 9722
   time: '2026-08-10T11:35:05.0000000+00:00'
   url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1397
+- author: HatBun
+  changes:
+    - type: Add
+      message: Adds the NA Sloop, a beat up pirate shuttle, to the scrap shipyard.
+  id: 9723
+  time: '2026-08-13T08:23:47.0000000+00:00'
+  url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1354
+- author: portfiend
+  changes:
+    - type: Tweak
+      message: >-
+        The "Public" bounty board has been renamed to "Requests" to clarify its
+        purpose better.
+  id: 9724
+  time: '2026-08-13T13:22:41.0000000+00:00'
+  url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1402
+- author: Laeras, ZigTag
+  changes:
+    - type: Fix
+      message: Pirates now have encryption keys in their loadout like contractors!
+  id: 9725
+  time: '2026-08-13T13:33:30.0000000+00:00'
+  url: https://github.com/AuroraSong14/Aurora-Song-14/pull/1396

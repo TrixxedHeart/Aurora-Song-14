@@ -1,0 +1,39 @@
+# Author Info
+# GitHub: HatBun
+# Discord: hatbun
+#
+- type: vessel
+  id: Sloop
+  parent: BaseVessel
+  name: NA Sloop
+  description: A small wooden pirate shuttle that was repossessed, stripped, and sold as-is.
+  price: 12500 #Appraises at 7,822
+  category: Small
+  group: Scrap
+  shuttlePath: /Maps/_AS/Shuttles/Scrap/sloop.yml
+  guidebookPage: Null
+  class:
+  - Scrapyard
+  - Pirate
+  engine:
+  - Plasma
+
+- type: gameMap
+  id: Sloop
+  mapName: 'NA Sloop'
+  mapPath: /Maps/_AS/Shuttles/Scrap/sloop.yml
+  minPlayers: 0
+  stations:
+    Sloop:
+      stationProto: StandardFrontierVessel
+      components:
+        - type: StationNameSetup
+          mapNameTemplate: 'Sloop {1}'
+          nameGenerator:
+            !type:NanotrasenNameGenerator
+            prefixCreator: '14'
+        - type: StationJobs
+          availableJobs:
+            ContractorInterview: [ 0, 0 ]
+            PilotInterview: [ 0, 0 ]
+            MercenaryInterview: [ 0, 0 ]

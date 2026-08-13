@@ -26,7 +26,8 @@ bounty-contracts-announcement-service-create = New service contract placed for {
 
 ## Contract collection names
 bounty-contract-collection-name-command = Command
-bounty-contract-collection-name-public = Public
+# Aurora Song: "Public" -> "Requests"
+bounty-contract-collection-name-public = Requests
 
 ## UI - List contracts
 bounty-contracts-ui-list-no-contracts = No contracts posted yet...

@@ -37,6 +37,7 @@
     prototype: FrontierBirthdayGift
 
 - type: startingGear
+  parent: ContractorGear # Aurora's Song
   id: NFPirateCaptainGear
   equipment:
     belt: ClothingBeltUtility
