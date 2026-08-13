@@ -565,5 +565,10 @@ public enum LogType
     /// Persistent Record restored from a deleted state
     /// </summary>
     RecordRestore = 14105,
+
+    /// <summary>
+    /// Player changed a canvas design.
+    /// </summary>
+    CanvasDesign = 14106,
     #endregion
 }
