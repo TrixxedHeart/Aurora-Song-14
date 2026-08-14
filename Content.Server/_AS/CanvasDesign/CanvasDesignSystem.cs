@@ -39,7 +39,7 @@ public sealed partial class CanvasDesignSystem : EntitySystem
 
     public override void Initialize()
     {
-        SubscribeLocalEvent<CanvasDesignComponent, ComponentStartup>(OnStartup);
+        SubscribeLocalEvent<CanvasDesignComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<CanvasDesignComponent, CanvasDesignSaveMessage>(OnSave);
         SubscribeLocalEvent<CanvasDesignComponent, EntityTerminatingEvent>(OnTerminating);
         SubscribeLocalEvent<CanvasDesignComponent, GetVerbsEvent<InteractionVerb>>(OnGetVerbs);
@@ -47,7 +47,7 @@ public sealed partial class CanvasDesignSystem : EntitySystem
         SubscribeLocalEvent<CanvasDesignComponent, BoundUIOpenedEvent>(OnUiOpened);
     }
 
-    private void OnStartup(Entity<CanvasDesignComponent> ent, ref ComponentStartup args)
+    private void OnMapInit(Entity<CanvasDesignComponent> ent, ref MapInitEvent args)
     {
         EnsureInitialized(ent);
         _knownDimensions[ent.Owner] = (ent.Comp.Width, ent.Comp.Height);
