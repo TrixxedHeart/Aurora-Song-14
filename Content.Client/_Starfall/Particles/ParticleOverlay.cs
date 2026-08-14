@@ -11,7 +11,7 @@ public sealed partial class ParticleOverlay : Overlay
 {
     [Dependency] private IEyeManager _eye = null!;
     [Dependency] private IPrototypeManager _proto = null!;
-    [Dependency] private SharedTransformSystem _transform = null!;
+    private readonly SharedTransformSystem _transform;
 
     private readonly ParticleSystem _system;
 
@@ -25,10 +25,11 @@ public sealed partial class ParticleOverlay : Overlay
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
 
-    public ParticleOverlay(ParticleSystem system)
+    public ParticleOverlay(ParticleSystem system, SharedTransformSystem transform)
     {
         IoCManager.InjectDependencies(this);
         _system = system;
+        _transform = transform;
     }
 
     protected override void Draw(in OverlayDrawArgs args)

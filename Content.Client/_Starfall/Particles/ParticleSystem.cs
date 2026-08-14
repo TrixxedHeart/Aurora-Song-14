@@ -88,7 +88,7 @@ public sealed partial class ParticleSystem : EntitySystem
     {
         base.Initialize();
 
-        _overlay = new ParticleOverlay(this);
+        _overlay = new ParticleOverlay(this, _transform);
         _overlayManager.AddOverlay(_overlay);
 
         _cfg.OnValueChanged(CCVars.ParticleQuality, OnQualityChanged, invokeImmediately: true);

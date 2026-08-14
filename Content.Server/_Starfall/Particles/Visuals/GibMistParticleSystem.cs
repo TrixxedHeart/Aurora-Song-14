@@ -1,4 +1,4 @@
-using Content.Shared._Starfall.Particles;
+using Content.Shared._Starfall.Particles.Visuals;
 using Content.Shared.Body.Components;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Gibbing;

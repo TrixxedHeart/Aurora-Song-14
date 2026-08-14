@@ -1,4 +1,5 @@
 using Content.Shared._Starfall.Particles;
+using Content.Shared._Starfall.Particles.Visuals;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client._Starfall.Particles.Visuals;
