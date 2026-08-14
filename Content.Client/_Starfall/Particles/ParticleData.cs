@@ -1,4 +1,5 @@
 using System.Numerics;
+using Robust.Shared.Map;
 
 namespace Content.Client._Starfall.Particles;
 
@@ -14,11 +15,11 @@ public sealed class ParticleData
     public Vector2 LocalOffset;
 
     /// <summary>
-    /// World position at spawn time, used for world-space particles.
-    /// Draw position = SpawnOrigin + rotate(LocalOffset, -eyeRot).
-    /// Unused for screen-space particles.
+    /// Grid-relative position at spawn time, used for world-space particles.
+    /// It is resolved to map space when drawn so particles travel with moving grids.
+    /// Unused for emitter-local particles.
     /// </summary>
-    public Vector2 SpawnOrigin;
+    public EntityCoordinates SpawnCoordinates;
 
     public Vector2 Velocity;        // current movement vector in screen-space units/sec
     public TimeSpan Age;            // how long this particle has been alive
@@ -40,7 +41,7 @@ public sealed class ParticleData
     public void Reset()
     {
         LocalOffset = default;
-        SpawnOrigin = default;
+        SpawnCoordinates = default;
         Velocity = default;
         Age = TimeSpan.Zero;
         Lifetime = TimeSpan.FromSeconds(1);

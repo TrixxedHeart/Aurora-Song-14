@@ -1,15 +1,17 @@
 using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Shared.Enums;
+using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client._Starfall.Particles;
 
 /// <summary>Draws all live particles for every active emitter each frame.</summary>
-public sealed class ParticleOverlay : Overlay
+public sealed partial class ParticleOverlay : Overlay
 {
-    [Dependency] private readonly IEyeManager _eye = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
+    [Dependency] private IEyeManager _eye = null!;
+    [Dependency] private IPrototypeManager _proto = null!;
+    [Dependency] private SharedTransformSystem _transform = null!;
 
     private readonly ParticleSystem _system;
 
@@ -67,7 +69,7 @@ public sealed class ParticleOverlay : Overlay
             var baseHalfSize = (ovr?.ParticleSize ?? proto.ParticleSize) * 0.5f;
 
             // Resolve shader override takes precedence, then prototype, then null
-            string? wantedShader = ovr?.Shader ?? (string.IsNullOrEmpty(proto.Shader) ? null : proto.Shader);
+            var wantedShader = ovr?.Shader ?? (string.IsNullOrEmpty(proto.Shader) ? null : proto.Shader);
 
             if (wantedShader != activeShader)
             {
@@ -93,7 +95,8 @@ public sealed class ParticleOverlay : Overlay
 
             foreach (var particle in emitter.Particles)
             {
-                if (!particle.Alive) continue;
+                if (!particle.Alive)
+                    continue;
 
                 var t = particle.AgeRatio;
 
@@ -130,8 +133,12 @@ public sealed class ParticleOverlay : Overlay
                 var worldOffset = new Vector2(local.X * cosR - local.Y * sinR,
                                               local.X * sinR + local.Y * cosR);
 
-                var origin = proto.WorldSpace ? particle.SpawnOrigin : screenOrigin;
-                var worldPos = origin + worldOffset;
+                var worldPos = proto.WorldSpace
+                    ? _transform.ToMapCoordinates(new EntityCoordinates(
+                        particle.SpawnCoordinates.EntityId,
+                        particle.SpawnCoordinates.Position + worldOffset))
+                        .Position
+                    : screenOrigin + worldOffset;
 
                 // StretchFactor: elongate along velocity direction proportional to speed.
                 // Rotation is derived from the velocity unit vector +precomputed eye cos/sin

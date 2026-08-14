@@ -19,21 +19,21 @@ namespace Content.Client._Starfall.Particles;
 /// </summary>
 public sealed partial class ParticleSystem : EntitySystem
 {
-    [Dependency] private readonly IOverlayManager _overlayManager = default!;
-    [Dependency] private readonly IPrototypeManager _protoManager = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IEyeManager _eye = default!;
-    [Dependency] private readonly IResourceCache _resourceCache = default!;
-    [Dependency] private readonly SpriteSystem _spriteSystem = default!;
+    [Dependency] private IOverlayManager _overlayManager = null!;
+    [Dependency] private IPrototypeManager _protoManager = null!;
+    [Dependency] private IRobustRandom _random = null!;
+    [Dependency] private SharedTransformSystem _transform = null!;
+    [Dependency] private IConfigurationManager _cfg = null!;
+    [Dependency] private IEyeManager _eye = null!;
+    [Dependency] private IResourceCache _resourceCache = null!;
+    [Dependency] private SpriteSystem _spriteSystem = null!;
 
     private readonly List<ActiveEmitter> _emitters = new();
     private readonly List<(ProtoId<ParticleEffectPrototype> Id, MapCoordinates Coords, int Depth)> _pendingSubEmitters = new();
 
     /// <summary>Maximum number of sub-emitter chains allowed. Prevents infinite recursive sub-emitter chains.</summary>
     public const int MaxSubEmitterDepth = 3;
-    private ParticleOverlay _overlay = default!;
+    private ParticleOverlay _overlay = null!;
 
     // Tally of live particles across all emitters. Incremented in EmitParticle, decremented on every Alive=false path.
     private int _liveParticleCount;
@@ -294,7 +294,8 @@ public sealed partial class ParticleSystem : EntitySystem
                     continue;
                 foreach (var p in e.Particles)
                 {
-                    if (!p.Alive) continue;
+                    if (!p.Alive)
+                        continue;
                     p.Alive = false;
                     _liveParticleCount--;
                 }
@@ -325,6 +326,8 @@ public sealed partial class ParticleSystem : EntitySystem
                 emitter.Exhausted = true;
                 emitter.AttachedEntity = null;
             }
+
+            emitter.MapCoords = _transform.ToMapCoordinates(emitter.Coordinates);
 
             var inView = emitter.MapCoords.MapId == currentMapId
                 && viewBounds.Contains(emitter.MapCoords.Position);
@@ -362,6 +365,7 @@ public sealed partial class ParticleSystem : EntitySystem
         {
             Proto = proto,
             MapCoords = coords,
+            Coordinates = _transform.ToCoordinates(coords),
             AttachedEntity = attached,
             Handle = _nextHandle++,
             SpawnOffset = proto.SpawnOffset,
@@ -430,6 +434,7 @@ public sealed partial class ParticleSystem : EntitySystem
                 var attachedCoords = _transform.GetMapCoordinates(attachedEnt);
                 newPos = attachedCoords.Position;
                 emitter.MapCoords = attachedCoords; // update both position AND MapId
+                emitter.Coordinates = _transform.ToCoordinates(attachedCoords);
             }
         }
 
@@ -691,7 +696,10 @@ public sealed partial class ParticleSystem : EntitySystem
         }
 
         if (proto.WorldSpace)
-            p.SpawnOrigin = emitter.MapCoords.Position + (emitter.Overrides?.SpawnOffset ?? emitter.SpawnOffset);
+        {
+            var spawnCoords = new MapCoordinates(emitter.MapCoords.Position + (emitter.Overrides?.SpawnOffset ?? emitter.SpawnOffset), emitter.MapCoords.MapId);
+            p.SpawnCoordinates = _transform.ToCoordinates(spawnCoords);
+        }
 
         p.SpawnSpeed = speed;
         p.SpawnIntensity = emitter.Intensity;
@@ -795,14 +803,17 @@ public sealed partial class ParticleSystem : EntitySystem
     }
 
     /// <summary>Converts a particle's screen-space LocalOffset to a world position.</summary>
-    private static Vector2 ComputeParticleWorldPos(ParticleData p, ActiveEmitter emitter, float eyeAngle)
+    private Vector2 ComputeParticleWorldPos(ParticleData p, ActiveEmitter emitter, float eyeAngle)
     {
         var cosR = MathF.Cos(-eyeAngle);
         var sinR = MathF.Sin(-eyeAngle);
         var worldOffset = new Vector2(p.LocalOffset.X * cosR - p.LocalOffset.Y * sinR,
                                       p.LocalOffset.X * sinR + p.LocalOffset.Y * cosR);
-        var origin = emitter.Proto.WorldSpace ? p.SpawnOrigin : emitter.MapCoords.Position;
-        return origin + worldOffset;
+        if (!emitter.Proto.WorldSpace)
+            return emitter.MapCoords.Position + worldOffset;
+
+        var particleCoords = new EntityCoordinates(p.SpawnCoordinates.EntityId, p.SpawnCoordinates.Position + worldOffset);
+        return _transform.ToMapCoordinates(particleCoords).Position;
     }
 
     /// <summary>
@@ -814,7 +825,8 @@ public sealed partial class ParticleSystem : EntitySystem
         emitter.Age += TimeSpan.FromSeconds(dt);
         foreach (var p in emitter.Particles)
         {
-            if (!p.Alive) continue;
+            if (!p.Alive)
+                continue;
             p.Age += TimeSpan.FromSeconds(dt);
             if (p.Age >= p.Lifetime)
             {
@@ -839,8 +851,8 @@ public sealed partial class ParticleSystem : EntitySystem
         if (_frameResolveFailures.Contains(protoId))
             return;
 
-        Texture[] frames = Array.Empty<Texture>();
-        float[] delays = Array.Empty<float>();
+        Texture[] frames;
+        float[] delays = [];
 
         switch (emitter.Proto.Sprite)
         {

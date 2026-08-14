@@ -61,7 +61,7 @@ public sealed partial class EmissionShapeData
 [Prototype]
 public sealed partial class ParticleEffectPrototype : IPrototype, IInheritingPrototype
 {
-    [IdDataField] public string ID { get; private set; } = default!;
+    [IdDataField] public string ID { get; private set; } = null!;
 
     /// <inheritdoc/>
     [ParentDataField(typeof(AbstractPrototypeIdArraySerializer<ParticleEffectPrototype>))]
@@ -75,7 +75,7 @@ public sealed partial class ParticleEffectPrototype : IPrototype, IInheritingPro
     #region =^..^= Visuals =^..^=
 
     /// <summary>Texture drawn for each particle. Supports RSI states and plain texture paths.</summary>
-    [DataField(required: true)] public SpriteSpecifier Sprite { get; private set; } = default!;
+    [DataField(required: true)] public SpriteSpecifier Sprite { get; private set; } = null!;
 
     /// <summary>Particle color at the start of its life. Ignored when <see cref="ColorOverLifetime"/> is set.</summary>
     [DataField] public Color StartColor { get; private set; } = Color.White;

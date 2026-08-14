@@ -11,7 +11,7 @@ namespace Content.Client._Starfall.Particles;
 /// </summary>
 public sealed class ActiveEmitter
 {
-    public ParticleEffectPrototype Proto = default!;
+    public ParticleEffectPrototype Proto = null!;
 
     /// <summary>
     /// How many sub-emitter links deep this emitter is. Root emitters are 0.
@@ -19,8 +19,11 @@ public sealed class ActiveEmitter
     /// </summary>
     public int SubEmitterDepth;
 
-    /// <summary>Current world-space origin of the emitter.</summary>
+    /// <summary>Current map-space origin of the emitter, refreshed from <see cref="Coordinates"/> each frame.</summary>
     public MapCoordinates MapCoords;
+
+    /// <summary>Grid-relative origin, so the effect follows moving and rotating grids.</summary>
+    public EntityCoordinates Coordinates;
 
     /// <summary>
     /// Additional world-space offset from <see cref="MapCoords"/> applied to the spawn origin.
@@ -90,10 +93,10 @@ public sealed class ActiveEmitter
 
     /// <summary>Resolved RSI frames. Populated on creation.
     /// Single-frame sprites have one entry and empty Delays.</summary>
-    public Texture[] Frames = Array.Empty<Texture>();
+    public Texture[] Frames = [];
 
     /// <summary>frame delays when an RSI defines animation.</summary>
-    public float[] Delays = Array.Empty<float>();
+    public float[] Delays = [];
 
     public int AnimFrame;
     public float AnimTimer;
