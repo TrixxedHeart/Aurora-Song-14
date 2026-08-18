@@ -258,6 +258,12 @@ public sealed partial class ParticleEffectPrototype : IPrototype, IInheritingPro
     [DataField] public bool WorldSpace { get; private set; } = true;
 
     /// <summary>
+    /// When attached to an entity, rotates the emission direction with that entity.
+    /// Useful for directional effects such as shuttle thruster exhaust.
+    /// </summary>
+    [DataField] public bool RotateWithEmitter { get; private set; }
+
+    /// <summary>
     /// World-space offset from the emitter origin applied to particle spawn positions.
     /// Useful for nudging effects away from entity anchor points.
     /// </summary>

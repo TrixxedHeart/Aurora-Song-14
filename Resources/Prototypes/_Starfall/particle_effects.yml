@@ -1,4 +1,71 @@
 - type: particleEffect
+  id: SfColdBreath
+  sprite:
+    sprite: _Starfall/Particles/generic.rsi
+    state: soft_dot_big
+  startColor: "#E8F5F5A0"
+  endColor: "#E8F5F500"
+  sizeOverLifetime:
+    - time: 0.0
+      value: 0.35
+    - time: 0.35
+      value: 0.8
+    - time: 1.0
+      value: 1.25
+  lifetime: 0.9
+  lifetimeVariance: 0.15
+  speed: 0.35
+  speedVariance: 0.12
+  particleSize: 0.32
+  sizeVariance: 0.2
+  maxCount: 2
+  burst: true
+  drag: 0.8
+  gravity: -0.08
+  spreadAngle: 35
+  emitAngle: 0
+  rotateWithEmitter: true
+  spawnOffset: 0, 0.1
+  shape:
+    type: CircleFill
+    radius: 0.04
+
+- type: particleEffect
+  id: SfThrusterExhaust
+  sprite:
+    sprite: _Starfall/Particles/generic.rsi
+    state: dot
+  shader: unshaded
+  colorOverLifetime:
+    - time: 0.0
+      color: "#DDF6FFFF"
+    - time: 0.25
+      color: "#70C8FFFF"
+    - time: 0.65
+      color: "#4778D0AA"
+    - time: 1.0
+      color: "#28386000"
+  lifetime: 0.75
+  lifetimeVariance: 0.2
+  speed: 2.4
+  speedVariance: 0.5
+  particleSize: 2
+  sizeVariance: 0.25
+  stretchFactor: 0.12
+  emissionRate: 28
+  maxCount: 64
+  duration: 0
+  drag: 0.35
+  constantForce: 0, 4
+  spreadAngle: 18
+  emitAngle: 0
+  rotateWithEmitter: true
+  spawnOffset: 0, -0.1
+  shape:
+    type: CircleFill
+    radius: 0.5
+
+- type: particleEffect
   id: SfWeldingSparks
   sprite:
     sprite: _Starfall/Particles/generic.rsi
