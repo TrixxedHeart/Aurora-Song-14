@@ -1,7 +1,7 @@
 using System.Numerics;
+using Content.Shared._Starfall.Particles;
 using Robust.Client.Graphics;
 using Robust.Shared.Enums;
-using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client._Starfall.Particles;
@@ -10,6 +10,7 @@ namespace Content.Client._Starfall.Particles;
 public sealed partial class ParticleOverlay : Overlay
 {
     [Dependency] private IEyeManager _eye = null!;
+    [Dependency] private IEntityManager _entityManager = null!;
     [Dependency] private IPrototypeManager _proto = null!;
     private readonly SharedTransformSystem _transform;
 
@@ -17,6 +18,7 @@ public sealed partial class ParticleOverlay : Overlay
 
     // Shader cache
     private readonly Dictionary<string, ShaderInstance?> _shaderCache = new();
+    private readonly Dictionary<EntityUid, Matrix3x2> _coordinateMatrices = new();
 
     private readonly List<ActiveEmitter> _sortBuffer = new();
     private static readonly Comparison<ActiveEmitter> RenderLayerComparison =
@@ -32,6 +34,19 @@ public sealed partial class ParticleOverlay : Overlay
         _transform = transform;
     }
 
+    public void ClearShaderCache()
+    {
+        foreach (var shader in _shaderCache.Values)
+            shader?.Dispose();
+        _shaderCache.Clear();
+    }
+
+    protected override void DisposeBehavior()
+    {
+        ClearShaderCache();
+        base.DisposeBehavior();
+    }
+
     protected override void Draw(in OverlayDrawArgs args)
     {
         var handle = args.WorldHandle;
@@ -39,25 +54,32 @@ public sealed partial class ParticleOverlay : Overlay
         var eyeAngle = (float)_eye.CurrentEye.Rotation;
         var cosR = MathF.Cos(-eyeAngle);
         var sinR = MathF.Sin(-eyeAngle);
+        _coordinateMatrices.Clear();
 
         // Sort emitters, lowest layers render first
         _sortBuffer.Clear();
+        int? firstRenderLayer = null;
+        var requiresSort = false;
         foreach (var emitter in _system.GetEmitters())
         {
             if (emitter.MapCoords.MapId != mapId)
-                continue;
-            if (!args.WorldBounds.Contains(emitter.MapCoords.Position))
                 continue;
             if (emitter.Frames.Length == 0)
                 continue;
 
             _sortBuffer.Add(emitter);
+            var renderLayer = emitter.Overrides?.RenderLayer ?? emitter.Proto.RenderLayer;
+            if (firstRenderLayer is { } first && first != renderLayer)
+                requiresSort = true;
+            else
+                firstRenderLayer = renderLayer;
         }
 
         if (_sortBuffer.Count == 0)
             return;
 
-        _sortBuffer.Sort(RenderLayerComparison);
+        if (requiresSort)
+            _sortBuffer.Sort(RenderLayerComparison);
 
         string? activeShader = null; // track to avoid redundant calls
 
@@ -94,17 +116,14 @@ public sealed partial class ParticleOverlay : Overlay
 
             var screenOrigin = emitter.MapCoords.Position;
 
-            foreach (var particle in emitter.Particles)
+            foreach (var particle in emitter.LiveParticles)
             {
-                if (!particle.Alive)
-                    continue;
-
                 var t = particle.AgeRatio;
 
                 // Color: use ColorOverLifetime gradient if available, otherwise lerp StartColor to EndColor
                 Color color;
-                if (proto.ColorOverLifetime.Count > 0)
-                    color = ParticleSystem.SampleColorCurve(proto.ColorOverLifetime, t);
+                if (emitter.Curves.Colors is { } colorCurve)
+                    color = ParticleCurveCache.Sample(colorCurve, particle.CurveIndex, particle.CurveLerp);
                 else
                 {
                     var startColor = ovr?.StartColor ?? proto.StartColor;
@@ -118,28 +137,51 @@ public sealed partial class ParticleOverlay : Overlay
                     color = new Color(color.R * tint.R, color.G * tint.G, color.B * tint.B, color.A * tint.A);
 
                 // AlphaOverLifetime: multiplied on top of color alpha
-                if (proto.AlphaOverLifetime.Count > 0)
+                if (emitter.Curves.Alpha is { } alphaCurve)
                 {
-                    var alpha = ParticleSystem.SampleCurve(proto.AlphaOverLifetime, t);
+                    var alpha = ParticleCurveCache.Sample(alphaCurve, particle.CurveIndex, particle.CurveLerp);
                     color = color.WithAlpha(color.A * alpha);
                 }
 
                 // Size: base * intensity * SizeMultiplier * SizeOverLifetime curve
                 var halfSize = baseHalfSize * particle.SpawnIntensity * particle.SizeMultiplier;
-                if (proto.SizeOverLifetime.Count > 0)
-                    halfSize *= ParticleSystem.SampleCurve(proto.SizeOverLifetime, t);
+                if (emitter.Curves.Size is { } sizeCurve)
+                    halfSize *= ParticleCurveCache.Sample(sizeCurve, particle.CurveIndex, particle.CurveLerp);
 
                 // Convert screen-space LocalOffset to world offset
                 var local = particle.LocalOffset;
                 var worldOffset = new Vector2(local.X * cosR - local.Y * sinR,
                                               local.X * sinR + local.Y * cosR);
 
-                var worldPos = proto.WorldSpace
-                    ? _transform.ToMapCoordinates(new EntityCoordinates(
-                        particle.SpawnCoordinates.EntityId,
-                        particle.SpawnCoordinates.Position + worldOffset))
-                        .Position
-                    : screenOrigin + worldOffset;
+                Vector2 worldPos;
+                switch (proto.ResolvedSimulationSpace)
+                {
+                    case ParticleSimulationSpace.Map:
+                        worldPos = particle.SpawnMapPosition + worldOffset;
+                        break;
+                    case ParticleSimulationSpace.Grid:
+                    {
+                        var coordinates = particle.SpawnCoordinates;
+                        if (!_entityManager.EntityExists(coordinates.EntityId))
+                            continue;
+                        if (!_coordinateMatrices.TryGetValue(coordinates.EntityId, out var matrix))
+                        {
+                            matrix = _transform.GetWorldMatrix(coordinates.EntityId);
+                            _coordinateMatrices.Add(coordinates.EntityId, matrix);
+                        }
+
+                        worldPos = Vector2.Transform(coordinates.Position + worldOffset, matrix);
+                        break;
+                    }
+                    default:
+                        worldPos = screenOrigin + worldOffset;
+                        break;
+                }
+
+                // Cull particles individually. The emitter itself may already be off-screen while
+                // a long-lived trail is still visible behind it.
+                if (!args.WorldBounds.Contains(worldPos))
+                    continue;
 
                 // StretchFactor: elongate along velocity direction proportional to speed.
                 // Rotation is derived from the velocity unit vector +precomputed eye cos/sin
@@ -183,6 +225,15 @@ public sealed partial class ParticleOverlay : Overlay
                         handle.DrawTextureRect(tex, new Box2(-halfSize, -halfSize, halfSize, halfSize), color);
                         continue;
                     }
+                }
+
+                // Most particles do not rotate. Reuse the eye rotation calculated once above
+                // instead of doing two trig calls per particle. The boring case should be cheap. =^..^=
+                if (particle.Rotation == 0f && particle.RotationSpeed == 0f)
+                {
+                    handle.SetTransform(new Matrix3x2(cosR, sinR, -sinR, cosR, worldPos.X, worldPos.Y));
+                    handle.DrawTextureRect(tex, new Box2(-halfSize, -halfSize, halfSize, halfSize), color);
+                    continue;
                 }
 
                 // Draw with rotation applied. Rotation is in radians, positive is clockwise, and 0 means "facing up" (aligned with SCREEN/eye/whatever Y axis).
