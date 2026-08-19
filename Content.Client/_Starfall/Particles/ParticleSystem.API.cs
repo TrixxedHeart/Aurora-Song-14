@@ -141,6 +141,9 @@ public sealed partial class ParticleSystem
 
     private ActiveEmitter? SpawnEffect(ProtoId<ParticleEffectPrototype> effectId, MapCoordinates coords, int depth, EntityUid? attachedEntity = null, Color? colorOverride = null, ParticleRuntimeOverrides? overrides = null, Vector2? initialVelocity = null)
     {
+        if (coords.MapId == MapId.Nullspace || !_mapSystem.MapExists(coords.MapId))
+            return null;
+
         if (depth > MaxSubEmitterDepth)
         {
             Log.Warning($"ParticleSystem: subemitter depth exceeded MaxSubEmitterDepth ({MaxSubEmitterDepth}). Dropping '{effectId}'. DO NOT RECUSIVELY STACK SUBEMITTERS.");

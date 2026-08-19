@@ -54,6 +54,13 @@ public sealed partial class ParticleSystem
             else
             {
                 var attachedCoords = _transform.GetMapCoordinates(attachedEnt);
+                if (attachedCoords.MapId == MapId.Nullspace)
+                {
+                    emitter.Exhausted = true;
+                    emitter.AttachedEntity = null;
+                    return;
+                }
+
                 newPos = attachedCoords.Position;
                 emitter.MapCoords = attachedCoords; // update both position AND MapId
                 emitter.Coordinates = _transform.ToCoordinates(attachedCoords);

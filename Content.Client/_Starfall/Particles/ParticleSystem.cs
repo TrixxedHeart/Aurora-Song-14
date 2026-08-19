@@ -20,6 +20,7 @@ public sealed partial class ParticleSystem : EntitySystem
     [Dependency] private IPrototypeManager _protoManager = null!;
     [Dependency] private IRobustRandom _random = null!;
     [Dependency] private SharedTransformSystem _transform = null!;
+    [Dependency] private SharedMapSystem _mapSystem = null!;
     [Dependency] private IConfigurationManager _cfg = null!;
     [Dependency] private IEyeManager _eye = null!;
     [Dependency] private IResourceCache _resourceCache = null!;

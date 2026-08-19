@@ -1,4 +1,5 @@
 using Content.Shared._Starfall.Particles;
+using Robust.Shared.Map;
 
 namespace Content.Client._Starfall.Particles;
 
@@ -31,6 +32,14 @@ public sealed partial class ParticleEmitterSystem : EntitySystem
         }
 
         var coords = _transform.GetMapCoordinates(ent.Owner);
+
+        // Prototype previews and other UI dummy entities are initialized in
+        // nullspace. There is no map entity to convert those coordinates
+        // through, so wait for a real PVS/map initialization instead of trying
+        // to create a world-space emitter for the preview.
+        if (coords.MapId == MapId.Nullspace)
+            return;
+
         var emitter = _particles.SpawnEffect(ent.Comp.Effect, coords, ent.Owner, ent.Comp.ColorOverride);
         if (emitter == null)
             return;
